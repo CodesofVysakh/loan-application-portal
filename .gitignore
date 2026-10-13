@@ -62,3 +62,8 @@ vite.config.*.timestamp*
 /test-results/
 /playwright-report/
 /blob-report/
+
+.agents/
+/.claude/
+/.windsurf/
+/skills-lock.json
