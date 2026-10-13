@@ -43,3 +43,22 @@ Thumbs.db
 .nx/migrate-runs
 .claude/worktrees
 .claude/settings.local.json
+
+vite.config.*.timestamp*
+/generated/prisma
+
+# Generated Prisma client
+/generated/prisma
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Generated Prisma client
+/apps/api/src/generated/prisma
+
+# Playwright test artifacts
+/test-results/
+/playwright-report/
+/blob-report/

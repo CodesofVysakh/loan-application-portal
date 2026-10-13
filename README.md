@@ -1,96 +1,223 @@
-# PersonalLoanPortal
+# Personal Loan Application Portal
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A full-stack loan application portal built with React, NestJS, TypeScript, MySQL, Prisma, and Nx. Customers can submit and track personal loan applications, while administrators can review applications and filter results by status.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Features
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+### Customer
+- Register and sign in with email and password.
+- Submit a personal loan application with Malaysian applicant details.
+- Load loan purposes from the backend.
+- View previously submitted applications and their status.
+- Receive credit-check status updates without refreshing the page through Server-Sent Events (SSE).
 
-## Run tasks
+### Administrator
+- Sign in using the seeded administrator account.
+- View all loan applications.
+- Filter by Pending, Approved, and Rejected status.
+- Browse paginated results.
+- Open an application to inspect applicant and loan details.
 
-To run tasks with Nx use:
+### Backend
+- JWT-based authentication and role-based access control.
+- Request validation using DTOs and `class-validator`.
+- Password hashing with bcrypt.
+- Prisma ORM with MySQL.
+- Simulated external loan-purpose service with a delay and server-side caching.
+- Asynchronous simulated credit checks with SSE status notifications.
+- Seed script for 250 demo customers and 10,000 demo applications.
 
-```sh
-npx nx <target> <project-name>
+## Technology stack
+
+| Area | Technology |
+|---|---|
+| Monorepo | Nx |
+| Frontend | React, TypeScript, Vite |
+| Backend | NestJS, TypeScript |
+| Database | MySQL |
+| ORM | Prisma |
+| Authentication | JWT, Passport, bcrypt |
+| Validation | class-validator, class-transformer |
+| Live updates | Server-Sent Events (SSE) |
+| Local infrastructure | Docker |
+
+## Prerequisites
+
+- Node.js 20 or a compatible supported Node.js version
+- npm
+- Docker Desktop
+- A local MySQL database, or the MySQL service defined by the project's Docker Compose configuration
+
+## Local setup
+
+### 1. Install dependencies
+
+```bash
+npm install
 ```
 
-For example:
+### 2. Configure environment variables
 
-```sh
-npx nx build myproject
+Copy the example environment file:
+
+```bash
+cp .env.example .env
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+Set the required variables in `.env`:
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```dotenv
+MYSQL_DATABASE=loan_portal
+MYSQL_USER=loan_app
+MYSQL_PASSWORD=replace-with-a-local-password
+MYSQL_ROOT_PASSWORD=replace-with-a-local-root-password
 
-## Add new projects
+DATABASE_URL="mysql://loan_app:replace-with-a-local-password@127.0.0.1:3306/loan_portal"
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+JWT_SECRET=replace-with-a-long-random-secret
+ADMIN_NAME=Portal Administrator
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=replace-with-a-strong-local-password
 
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
+SEED_CUSTOMER_PASSWORD=CustomerDemo123!
 ```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+Ensure the credentials in `DATABASE_URL` match the MySQL configuration. Do not commit `.env` or production secrets.
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
+### 3. Start MySQL
 
-# Generate a library
-npx nx g @nx/react:lib some-lib
+Start the project's configured database service:
+
+```bash
+docker compose up -d
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+Wait until MySQL is healthy before continuing. If the Compose file does not manage MySQL, start your local MySQL instance separately.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### 4. Apply database migrations and seed data
 
-## Set up CI!
+Apply the checked-in migrations:
 
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+```bash
+npx prisma migrate deploy --config prisma7.config.ts
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+Seed the administrator, loan purposes, demo customers, and demo applications:
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+```bash
+npx prisma db seed --config prisma7.config.ts
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+The seed creates 10,000 demo applications across 250 dedicated demo customers. Re-running it replaces the demo customers' applications while preserving applications belonging to other users.
 
-## Install Nx Console
+### 5. Start the API
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+In a terminal:
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+npx nx serve api
+```
 
-## Useful links
+The API is expected at `http://localhost:3000/api`.
 
-Learn more:
+Check the database connection:
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+curl http://localhost:3000/api/health/database
+```
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### 6. Start the frontend
+
+In another terminal:
+
+```bash
+npx nx serve web
+```
+
+Open the URL printed by Nx in the terminal. If the frontend runs on a port other than the configured CORS origins, update the API CORS configuration accordingly and restart the API.
+
+## Demo accounts
+
+### Administrator
+
+Use the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values configured in your local `.env`.
+
+### Customer
+
+- Email: `seed.customer.001@example.com`
+- Password: `SEED_CUSTOMER_PASSWORD`, or `CustomerDemo123!` if the variable is not set.
+
+All seeded customers share the configured demo password. These accounts and passwords are intended for local assessment use only.
+
+## API overview
+
+All routes below are prefixed with `/api`.
+
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| POST | `/auth/register` | Public | Register a customer |
+| POST | `/auth/login` | Public | Sign in and receive a JWT |
+| GET | `/loan-purposes` | Public | Retrieve loan purposes |
+| POST | `/loan-applications` | Customer | Submit an application |
+| GET | `/loan-applications/mine` | Customer | List own applications |
+| GET | `/loan-applications/mine/:id` | Customer | View own application |
+| GET | `/loan-applications/events` | Authenticated | Receive status updates via SSE |
+| GET | `/loan-applications` | Admin | List and filter applications |
+| GET | `/loan-applications/:id` | Admin | View application details |
+
+The admin list endpoint supports pagination and status filtering:
+
+```text
+GET /api/loan-applications?page=1&pageSize=25
+GET /api/loan-applications?status=PENDING&page=1&pageSize=25
+GET /api/loan-applications?status=APPROVED&page=2&pageSize=25
+```
+
+Authenticated endpoints require:
+
+```text
+Authorization: Bearer <JWT>
+```
+
+## Design decisions and trade-offs
+
+### Monorepo
+Nx keeps the frontend and backend in one repository, making the assessment easier to run and maintain. It also provides consistent project commands and a path toward shared types or utilities.
+
+### Authentication and authorization
+Passwords are hashed with bcrypt and never returned in API responses. JWTs identify the authenticated user, and backend guards enforce customer/admin access. The backend derives the customer identity from the authenticated session rather than trusting a client-supplied user ID.
+
+### Loan purposes
+The external core-banking integration is simulated by a fixed list, a two-second delay, and a cache. The cache avoids repeatedly paying the simulated latency for reference data that rarely changes. A production integration should add explicit timeouts, retries where appropriate, monitoring, and a fallback policy.
+
+### Asynchronous credit checks
+Applications are initially saved as `PENDING`. A background timer simulates a credit check, and the API emits a status event over SSE. This is suitable for demonstrating asynchronous updates within one running process. It is not a durable job-processing design: a process restart can lose scheduled timers. A production system should use a durable queue or workflow engine and persist job state.
+
+### Database access and pagination
+The admin listing uses server-side pagination and status filtering, avoiding the need to load the entire dataset into the browser. Indexes support common lookups by applicant, status, purpose, and creation time.
+
+### Scope and production limitations
+The credit decision is simulated and must not be used for actual lending decisions. The demo does not integrate with a real identity verification or credit bureau service. Before production use, add rate limiting, stronger audit trails, privacy controls, robust session/token lifecycle management, durable background processing, operational monitoring, and appropriate security and compliance reviews.
+
+## Verification
+
+Build both projects:
+
+```bash
+npx nx build api
+npx nx build web
+```
+
+Useful manual checks:
+
+1. Register a customer and sign in.
+2. Submit a loan application and confirm it starts as `PENDING`.
+3. Observe the status update through SSE without refreshing.
+4. Sign in as the administrator.
+5. Check the status filters and application detail panel.
+6. Navigate between pages of the seeded dataset.
+7. Confirm a customer cannot access admin-only endpoints or another customer's application.
+
+## Additional documentation
+
+See [AI_USAGE.md](AI_USAGE.md) for a summary of AI-assisted development, changes made during implementation, and suggestions that were adapted or not adopted.

@@ -1,0 +1,17 @@
+
+{
+  "name": "api-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "implicitDependencies": ["api"],
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nx/playwright:playwright",
+      "outputs": ["{workspaceRoot}/dist/.playwright/apps/api-e2e"],
+      "options": {
+        "config": "apps/api-e2e/playwright.config.ts"
+      },
+      "dependsOn": ["api:build"]
+    }
+  }
+}
