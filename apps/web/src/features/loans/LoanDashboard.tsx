@@ -234,7 +234,7 @@ export function LoanDashboard({ user, onLogout }: LoanDashboardProps) {
     <main className="portal">
       <header className="topbar">
         <a className="brand" href="/" aria-label="Loan portal home">
-          <span className="brand-mark">R</span>
+          <span className="brand-mark">L</span>
           <span>Personal Loan Portal</span>
         </a>
 

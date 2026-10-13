@@ -43,7 +43,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   return (
     <main className="auth-layout">
       <section className="auth-intro">
-        <div className="brand-mark">R</div>
+        <div className="brand-mark">L</div>
         <p className="eyebrow">PERSONAL FINANCE</p>
         <h1>Your next chapter starts here.</h1>
         <p className="intro-copy">
