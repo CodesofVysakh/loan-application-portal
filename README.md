@@ -74,7 +74,7 @@ MYSQL_ROOT_PASSWORD=replace-with-a-local-root-password
 
 DATABASE_URL="mysql://loan_app:replace-with-a-local-password@127.0.0.1:3306/loan_portal"
 
-JWT_SECRET=replace-with-a-long-random-secret
+JWT_SECRET=replace-with-a-long-random-secret ("openssl rand -base64 32" for testing purpose)
 ADMIN_NAME=Portal Administrator
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=replace-with-a-strong-local-password
@@ -97,6 +97,10 @@ Wait until MySQL is healthy before continuing. If the Compose file does not mana
 ### 4. Apply database migrations and seed data
 
 Apply the checked-in migrations:
+
+```bash
+npx prisma generate --config prisma7.config.ts
+```
 
 ```bash
 npx prisma migrate deploy --config prisma7.config.ts
